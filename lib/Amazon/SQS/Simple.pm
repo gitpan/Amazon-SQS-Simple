@@ -10,15 +10,15 @@ use XML::Simple;
 
 use base qw(Exporter);
 
-use constant SQS_VERSION      => '2007-05-01';
-use constant BASE_ENDPOINT    => 'http://queue.amazonaws.com';
-use constant MAX_GET_MSG_SIZE => 4096; # Messages larger than this size will be sent
-                                       # using a POST request. This feature requires
-                                       # SQS_VERSION 2007-05-01 or later.
+use constant DEFAULT_SQS_VERSION => '2007-05-01';
+use constant BASE_ENDPOINT       => 'http://queue.amazonaws.com';
+use constant MAX_GET_MSG_SIZE    => 4096; # Messages larger than this size will be sent
+                                          # using a POST request. This feature requires
+                                          # SQS_VERSION 2007-05-01 or later.
                                        
 use overload '""' => \&_to_string;
 
-our $VERSION   = '0.1';
+our $VERSION   = '0.2';
 our @EXPORT_OK = qw( timestamp );
 
 sub new {
@@ -27,10 +27,11 @@ sub new {
     my $secret_key = shift;
     
     my $self = {
-        AWSAccessKeyId => $access_key,
-        SecretKey => $secret_key,
-        Endpoint => +BASE_ENDPOINT,
+        AWSAccessKeyId   => $access_key,
+        SecretKey        => $secret_key,
+        Endpoint         => +BASE_ENDPOINT,
         SignatureVersion => 1,
+        _Version         => +DEFAULT_SQS_VERSION,
         @_,
     };
     if (!$self->{AWSAccessKeyId} || !$self->{SecretKey}) {
@@ -93,20 +94,12 @@ sub ListQueues {
 }
 
 # Autoload accessors for object member variables
+# DON'T REMOVE! Endpoint() is documented in the
+# Amazon::SQS::Simple::Queue pod
 sub AUTOLOAD {
-    my ($self, $value) = @_;
-    
-    (my $method = $AUTOLOAD) =~ s/.*://;
-    
-    return unless defined $self->{$method};
-    
-    if (defined $value) {
-        $self->{$method} = $value;
-        return $self;
-    }
-    else {
-        return $self->{$method};
-    }
+    my ($self) = @_;
+    (my $method = $AUTOLOAD) =~ s/.*://;    
+    return $self->{$method};
 }
 
 # Explicitly define DESTROY so that it doesn't get autoloaded
@@ -121,7 +114,7 @@ sub _dispatch {
     
     $params = {
         AWSAccessKeyId      => $self->{AWSAccessKeyId},
-        Version             => +SQS_VERSION,
+        Version             => $self->{_Version},
         %$params
     };
 
@@ -138,7 +131,9 @@ sub _dispatch {
     my $url      = $self->_get_signed_url($params);
     my $ua       = LWP::UserAgent->new();
     my $response;
-    
+
+    $self->_debug_log($url);
+
     if ($post_request) {
         $response = $ua->post(
             $url, 
@@ -151,6 +146,7 @@ sub _dispatch {
     }
     
     if ($response->is_success) {
+        $self->_debug_log($response->content);
         my $href = XMLin($response->content, ForceArray => $force_array);
         return $href;
     }
@@ -178,6 +174,13 @@ sub timestamp {
         $min,
         $sec
     );
+}
+
+sub _debug_log {
+    my ($self, $msg) = @_;
+    return unless $self->{_Debug};
+    chomp($msg);
+    print {$self->{_Debug}} $msg . "\n\n";
 }
 
 sub _get_signed_url {
@@ -253,9 +256,13 @@ Service.
 
 =over 2
 
-=item new($access_key, $secret_key, [%opts])
+=item new($access_key, $secret_key)
 
 Constructs a new Amazon::SQS::Simple object
+
+C<$access_key> is your Amazon Web Services access key. C<$secret_key> is your Amazon Web
+Services secret key. If you don't have either of these credentials, visit
+L<http://aws.amazon.com/>.
 
 =back
 
@@ -263,7 +270,7 @@ Constructs a new Amazon::SQS::Simple object
 
 =over 2
 
-=item GetQueue($queue_endpoint, [%opts])
+=item GetQueue($queue_endpoint)
 
 Gets the queue with the given endpoint. Returns a 
 C<Amazon::SQS::Simple::Queue> object. (See L<Amazon::SQS::Simple::Queue> for details.)
@@ -273,14 +280,39 @@ C<Amazon::SQS::Simple::Queue> object. (See L<Amazon::SQS::Simple::Queue> for det
 Creates a new queue with the given name. Returns a 
 C<Amazon::SQS::Simple::Queue> object. (See L<Amazon::SQS::Simple::Queue> for details.)
 
+Options for CreateQueue:
+
+=over 2
+
+=item DefaultVisibilityTimeout => SECONDS
+
+Set the default visibility timeout for this queue
+
+=back
+
 =item ListQueues([%opts])
 
 Gets a list of all your current queues. Returns an array of 
 C<Amazon::SQS::Simple::Queue> objects. (See L<Amazon::SQS::Simple::Queue> for details.)
 
+Options for ListQueues:
+
+=over 2
+
+=item QueueNamePrefix => STRING
+
+Only those queues whose name begins with the specified string are returned.
+
+=back
+
 =back
 
 =head1 FUNCTIONS
+
+No functions are exported by default; if you want to use them, export them in your use 
+line:
+
+    use Amazon::SQS::Simple qw( timestamp );
 
 =over 2
 
@@ -291,10 +323,9 @@ using in a Timestamp or Expires optional method parameter.
 
 =back
 
-=head1 OPTIONS
+=head1 STANDARD OPTIONS
 
-All the methods in this class accept a hash of optional parameters. The keys in
-the hash are as follows:
+The following options can be supplied with any of the listed methods.
 
 =over 2
 
@@ -330,6 +361,9 @@ You generally do not need to supply this option.
 =head1 AUTHOR
 
 Copyright 2007 Simon Whitaker E<lt>swhitaker@cpan.orgE<gt>
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
 
 =cut
 
