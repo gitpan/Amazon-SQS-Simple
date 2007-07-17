@@ -8,3 +8,6 @@ Revision history for Amazon-SQS-Simple
 
 0.03    17 July 2007
         Added Amazon::SQS::Simple::Base, Amazon::SQS::Simple::Message
+
+0.04    17 July 2007
+        Mended POD docs in Base and Message classes
