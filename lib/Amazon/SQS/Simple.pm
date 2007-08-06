@@ -10,7 +10,7 @@ use XML::Simple;
 
 use base qw(Exporter Amazon::SQS::Simple::Base);
 
-our $VERSION   = '0.4';
+our $VERSION   = '0.5';
 our @EXPORT_OK = qw( timestamp );
 
 sub GetQueue {
@@ -92,10 +92,10 @@ Service
 
     # Retrieve a message
     my $msg = $q->ReceiveMessage();
-    print $msg->{MessageBody} # Hello world!
+    print $msg->MessageBody() # Hello world!
 
     # Delete the message
-    $q->DeleteMessage($msg->{MessageId});
+    $q->DeleteMessage($msg->MessageId());
 
     # Delete the queue
     $q->Delete();
@@ -135,7 +135,7 @@ C<Amazon::SQS::Simple::Queue> object. (See L<Amazon::SQS::Simple::Queue> for det
 
 Options for CreateQueue:
 
-=over 2
+=over 4
 
 =item DefaultVisibilityTimeout => SECONDS
 
@@ -150,7 +150,7 @@ C<Amazon::SQS::Simple::Queue> objects. (See L<Amazon::SQS::Simple::Queue> for de
 
 Options for ListQueues:
 
-=over 2
+=over 4
 
 =item QueueNamePrefix => STRING
 
