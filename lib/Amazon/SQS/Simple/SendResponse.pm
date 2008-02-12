@@ -1,18 +1,8 @@
-package Amazon::SQS::Simple::Message;
+package Amazon::SQS::Simple::SendResponse;
 
 sub new {
     my ($class, $msg) = @_;
     return bless ($msg, $class);
-}
-
-sub MessageBody {
-    my $self = shift;
-    return $self->{Body};
-}
-
-sub MD5OfBody {
-    my $self = shift;
-    return $self->{MD5OfBody};
 }
 
 sub MessageId {
@@ -20,9 +10,9 @@ sub MessageId {
     return $self->{MessageId};
 }
 
-sub ReceiptHandle {
+sub MD5OfMessageBody {
     my $self = shift;
-    return $self->{ReceiptHandle};
+    return $self->{MD5OfMessageBody};
 }
 
 1;
@@ -31,34 +21,26 @@ __END__
 
 =head1 NAME
 
-Amazon::SQS::Simple::Message - OO API for representing messages from 
-the Amazon Simple Queue Service.
+Amazon::SQS::Simple::SendResponse - OO API for representing responses to
+messages sent to the Amazon Simple Queue Service.
 
 =head1 INTRODUCTION
 
 Don't instantiate this class directly. Objects of this class are returned
-by various methods in C<Amazon::SQS::Simple::Queue>. 
+by SendMessage in C<Amazon::SQS::Simple::Queue>. 
 See L<Amazon::SQS::Simple::Queue> for more details.
 
 =head1 METHODS
 
 =over 2
 
-=item B<MessageBody()>
-
-Get the message body.
-
 =item B<MessageId()>
 
 Get the message unique identifier
 
-=item B<MD5OfBody()>
+=item B<MD5OfMessageBody()>
 
-Get the MD5 checksum of the message body
-
-=item B<ReceiptHandle()>
-
-Get the receipt handle for the message (used as an argument to DeleteMessage)
+Get the MD5 checksum of the message body you sent
 
 =back
 

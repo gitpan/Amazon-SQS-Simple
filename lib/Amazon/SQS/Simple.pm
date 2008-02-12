@@ -1,16 +1,11 @@
 package Amazon::SQS::Simple;
 
 use Carp qw( croak );
-use Digest::HMAC_SHA1;
-use LWP::UserAgent;
-use MIME::Base64;
 use Amazon::SQS::Simple::Queue;
-use URI::Escape;
-use XML::Simple;
 
 use base qw(Exporter Amazon::SQS::Simple::Base);
 
-our $VERSION   = '0.5';
+our $VERSION   = '0.6';
 our @EXPORT_OK = qw( timestamp );
 
 sub GetQueue {
@@ -29,14 +24,11 @@ sub CreateQueue {
         
     my $href = $self->_dispatch(\%params);
     
-    if ($href->{QueueUrl}) {
+    if ($href->{CreateQueueResult}{QueueUrl}) {
         return Amazon::SQS::Simple::Queue->new(
             %$self,
-            Endpoint => $href->{QueueUrl},
+            Endpoint => $href->{CreateQueueResult}{QueueUrl},
         );
-    }
-    else {
-        croak("Failed to create a queue: " . $response->status_line);
     }
 }
 
@@ -47,13 +39,14 @@ sub ListQueues {
         
     my $href = $self->_dispatch(\%params, ['QueueUrl']);
     
-    if ($href->{QueueUrl}) {
+    if ($href->{ListQueuesResult}{QueueUrl}) {
         my @result = map {
             new Amazon::SQS::Simple::Queue(
                 %$self,
                 Endpoint => $_,
             )        
-        } @{$href->{QueueUrl}};
+        } @{$href->{ListQueuesResult}{QueueUrl}};
+
         return \@result;
     }
     else {
@@ -104,6 +97,13 @@ Service
 
 Amazon::SQS::Simple is an OO API for the Amazon Simple Queue
 Service.
+
+=head1 IMPORTANT
+
+This version of Amazon::SQS::Simple works against version 2008-01-01 of
+the SQS API. It will NOT work against earlier versions of the API: use 
+Amazon::SQS::Simple 0.5 for those (but bear in mind that earlier SQS versions
+are slated for deprecation - see aws.amazon.com for details.)
 
 =head1 CONSTRUCTOR
 
@@ -213,7 +213,7 @@ You generally do not need to supply this option.
 
 =head1 AUTHOR
 
-Copyright 2007 Simon Whitaker E<lt>swhitaker@cpan.orgE<gt>
+Copyright 2007-2008 Simon Whitaker E<lt>swhitaker@cpan.orgE<gt>
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
