@@ -5,7 +5,7 @@ use Amazon::SQS::Simple::Queue;
 
 use base qw(Exporter Amazon::SQS::Simple::Base);
 
-our $VERSION   = '0.6';
+our $VERSION   = '0.7';
 our @EXPORT_OK = qw( timestamp );
 
 sub GetQueue {
@@ -88,7 +88,7 @@ Service
     print $msg->MessageBody() # Hello world!
 
     # Delete the message
-    $q->DeleteMessage($msg->MessageId());
+    $q->DeleteMessage($msg->ReceiptHandle());
 
     # Delete the queue
     $q->Delete();
