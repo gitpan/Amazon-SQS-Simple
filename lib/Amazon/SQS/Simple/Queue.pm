@@ -14,7 +14,9 @@ sub Delete {
     my $self = shift;
     my $params = { Action => 'DeleteQueue' };
     
-    my $href = $self->_dispatch($params);    
+    my $href = $self->_dispatch($params);
+
+    return defined $href->{ResponseMetadata};
 }
 
 sub SendMessage {
@@ -54,6 +56,8 @@ sub DeleteMessage {
     $params{ReceiptHandle} = $receipt_handle;
     
     my $href = $self->_dispatch(\%params);
+    
+    return defined $href->{ResponseMetadata};
 }
 
 sub GetAttributes {
@@ -82,6 +86,8 @@ sub SetAttribute {
     $params{'Attribute.Value'}  = $value;
     
     my $href = $self->_dispatch(\%params);
+
+    return defined $href->{ResponseMetadata};
 }
 
 1;
@@ -154,7 +160,8 @@ Number of messages to return
 
 =item B<DeleteMessage($message_id, [%opts])>
 
-Delete the message with the specified message ID from the queue
+Delete the message with the specified message ID from the queue. 
+Returns true if the call succeeded, false otherwise.
 
 =item B<GetAttributes([%opts])>
 
