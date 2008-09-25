@@ -1,5 +1,7 @@
 package Amazon::SQS::Simple::Base;
 
+use strict;
+use warnings;
 use Carp qw( croak carp );
 use Digest::HMAC_SHA1;
 use LWP::UserAgent;
@@ -9,12 +11,16 @@ use XML::Simple;
 
 use base qw(Exporter);
 
-use constant DEFAULT_SQS_VERSION => '2008-01-01';
-use constant BASE_ENDPOINT       => 'http://queue.amazonaws.com';
-use constant MAX_GET_MSG_SIZE    => 4096; # Messages larger than this size will be sent
-                                          # using a POST request. This feature requires
-                                          # SQS_VERSION 2007-05-01 or later.
+use constant SQS_VERSION_2008_01_01 => '2008-01-01';
+use constant SQS_VERSION_2007_05_01 => '2007-05-01';
+use constant BASE_ENDPOINT          => 'http://queue.amazonaws.com';
+use constant MAX_GET_MSG_SIZE       => 4096; # Messages larger than this size will be sent
+                                             # using a POST request. This feature requires
+                                             # SQS_VERSION 2007-05-01 or later.
                                        
+our $DEFAULT_SQS_VERSION = +SQS_VERSION_2008_01_01;
+our @EXPORT = qw(SQS_VERSION_2008_01_01 SQS_VERSION_2007_05_01);
+
 use overload '""' => \&_to_string;
 
 sub new {
@@ -27,13 +33,31 @@ sub new {
         SecretKey        => $secret_key,
         Endpoint         => +BASE_ENDPOINT,
         SignatureVersion => 1,
-        _Version         => +DEFAULT_SQS_VERSION,
+        Version          => $DEFAULT_SQS_VERSION,
         @_,
     };
+
     if (!$self->{AWSAccessKeyId} || !$self->{SecretKey}) {
         croak "Missing AWSAccessKey or SecretKey";
     }
-    return bless($self, $class);
+
+    # validate the Version, warn if it's not one we recognise
+    my @valid_versions = ( +SQS_VERSION_2007_05_01, +SQS_VERSION_2008_01_01 );
+    if (!grep {$self->{Version} eq $_} @valid_versions) {
+        carp "Warning: " 
+           . $self->{Version} 
+           . " might not be a valid version. Recognised versions are " 
+           . join(', ', @valid_versions);
+    }
+
+    $self = bless($self, $class);
+    $self->_debug_log("Version is set to $self->{Version}");
+    return $self;
+}
+
+sub _api_version {
+    my $self = shift;
+    return $self->{Version};
 }
 
 sub _to_string {
@@ -53,7 +77,7 @@ sub _dispatch {
     
     $params = {
         AWSAccessKeyId      => $self->{AWSAccessKeyId},
-        Version             => $self->{_Version},
+        Version             => $self->{Version},
         %$params
     };
 
