@@ -32,6 +32,6 @@ Revision history for Amazon-SQS-Simple
         Added ability to call old API versions
 
 1.00    28 Oct 2008
-		Fixed bug rt.cpan.org#34120
-		(http://rt.cpan.org/Public/Bug/Display.html?id=34120)
+        Fixed bug rt.cpan.org#34120
+        (http://rt.cpan.org/Public/Bug/Display.html?id=34120)
 
