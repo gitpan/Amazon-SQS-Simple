@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Amazon-SQS-Simple
-version:             1.02
+version:             1.03
 abstract:            OO API for accessing the Amazon Simple Queue 
 license:             ~
 generated_by:        ExtUtils::MakeMaker version 6.36
