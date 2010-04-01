@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Amazon-SQS-Simple
-version:            1.05
+version:            1.06
 abstract:           OO API for accessing the Amazon Simple Queue 
 author:
     - Simon Whitaker <sw@netcetera.org>
