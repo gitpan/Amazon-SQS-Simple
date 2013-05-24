@@ -1,0 +1,47 @@
+{
+   "abstract" : "OO API for accessing the Amazon Simple Queue ",
+   "author" : [
+      "Simon Whitaker <sw@netcetera.org>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "ExtUtils::MakeMaker version 6.62, CPAN::Meta::Converter version 2.120921",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Amazon-SQS-Simple",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Digest::HMAC_SHA1" : "0",
+            "Digest::SHA" : "0",
+            "LWP::UserAgent" : "0",
+            "MIME::Base64" : "0",
+            "Test::More" : "0",
+            "URI::Escape" : "0",
+            "XML::Simple" : "0"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "version" : "2.00"
+}
