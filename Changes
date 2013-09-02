@@ -69,3 +69,7 @@ Revision history for Amazon-SQS-Simple
 		
 2.02	1 Jul 2013
 		As above with updated Changes file :D
+		
+2.03	1 Sep 2013
+		Retry 500 errors (on advice from AWS support)
+		Handle ARN-style endpoints (https://sqs.<host>.amazonaws.com/<nnn>/<queue>)
